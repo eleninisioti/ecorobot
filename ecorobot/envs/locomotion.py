@@ -12,7 +12,7 @@ from brax.envs.base import PipelineEnv, State
 
 class Locomotion(EcorobotEnv):
     def __init__(self,  robot_type, backend="mjx", only_forward=False,project_dir="temp", **kwargs):
-        self.episode_length = 1000
+        self.episode_length = 300
         self.num_tasks = 1
         self.current_task = 0
 
