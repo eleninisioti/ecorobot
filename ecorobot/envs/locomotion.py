@@ -41,16 +41,7 @@ class Locomotion(EcorobotEnv):
     def reset(self, key, env_params=None):
 
         new_state = super().reset(key)
-        metrics = {
-            'reward_forward': 0.0,
-            'reward_survive': 0.0,
-            'reward_ctrl': 0.0,
-            'x_position': 0.0,
-            'y_position': 0.0,
-            'distance_from_origin': 0.0,
-            'x_velocity': 0.0,
-            'y_velocity': 0.0,
-        }
+
         reward, done, zero = jnp.zeros(3)
 
         metrics = {
@@ -77,9 +68,9 @@ class Locomotion(EcorobotEnv):
         pipeline_state = state.pipeline_state
 
         obs = self._get_obs(pipeline_state)
-        #return self.robot.env.step(state, action)
+        return self.robot.env.step(state, action)
 
-        return state.replace(obs=obs, done=state.done.astype(jnp.bool_))
+        #return state.replace(obs=obs, done=state.done.astype(jnp.bool_))
 
     def _get_obs(self, pipeline_state: State) -> jnp.ndarray:
         """ Observe robot body position and velocities, as well as food location.
