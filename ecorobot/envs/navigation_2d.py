@@ -3,7 +3,7 @@ import collections
 from gym.spaces import Box
 from brax.envs.base import Env, State
 from brax import math, base
-import jumpy as jp
+import jax.numpy as jp
 import jax
 import matplotlib.pyplot as plt
 import os
