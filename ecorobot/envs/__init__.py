@@ -34,7 +34,7 @@ from ecorobot.envs import maze_with_stepping_stones_small_conditioned
 from ecorobot.envs import locomotion_with_obstacles
 from ecorobot.envs import deceptive_maze
 from ecorobot.envs import deceptive_maze_easy
-
+from ecorobot.envs import navigation_2d
 
 _envs = {"simple_foraging": simple_foraging.SimpleForaging,
          "foraging_with_sensors": foraging_with_sensors.ForagingWithSensors,
@@ -53,7 +53,8 @@ _envs = {"simple_foraging": simple_foraging.SimpleForaging,
          "maze_with_stepping_stones_small_conditioned": maze_with_stepping_stones_small_conditioned.SteppingStoneMazeSmall,
 
          "deceptive_maze": deceptive_maze.DeceptiveMaze,
-         "deceptive_maze_easy": deceptive_maze_easy.DeceptiveMazeEasy
+         "deceptive_maze_easy": deceptive_maze_easy.DeceptiveMazeEasy,
+         "2d_navigation": navigation_2d.PointEnvRandGoal
 
          }
 

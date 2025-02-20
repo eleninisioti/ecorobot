@@ -57,12 +57,16 @@ def sample_goals(num_goals, key: jax.random.PRNGKey):
 class PointEnvRandGoal(Env):
     def __init__(self, goalidx=0, genidx=0, predefined_goals=False, backend=None,
                  **kwargs):  # Can set goal to test adaptation.
-        super().__init__(**kwargs)
+        #super().__init__(**kwargs)
         seed = (int(genidx) << 16) + int(goalidx)
         key = jax.random.PRNGKey(seed=seed)
         self._goal = sample_goal_from_four(goalidx=goalidx) if predefined_goals else sample_goal_from_circle(key=key)
         self.goal_idx = goalidx
         self._action_space = Box(low=-0.1, high=0.1, shape=(2,))
+        self.episode_length = 100
+        self.reward_for_solved = 1
+        self.num_tasks = 1
+
 
     @property
     def observation_space(self):
@@ -84,7 +88,7 @@ class PointEnvRandGoal(Env):
         """The physics backend that this env was instantiated with."""
         return "generalized"
 
-    def reset(self, rng: jp.ndarray) -> State:
+    def reset(self, rng: jp.ndarray, env_params) -> State:
         """Resets the environment to an initial state."""
         reward, done, zero = jp.zeros(3)
         metrics = {

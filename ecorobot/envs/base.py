@@ -15,7 +15,7 @@ import os
 import jax
 from jax import numpy as jp
 import mujoco
-
+from brax.io import html
 import numpy as onp
 class EcorobotEnv(PipelineEnv):
     def __init__(self, project_dir, episode_length, backend="mjx", **kwargs):
@@ -180,7 +180,7 @@ class EcorobotEnv(PipelineEnv):
         #obs = self._get_obs(pipeline_state)
 
         done =  self.robot.get_done(pipeline_state)
-        #done = jnp.where(jnp.greater(state.info["current_step"], self.episode_length), 1.0, done )
+        done = jnp.where(jnp.greater(state.info["current_step"], self.episode_length), 1.0, done )
         #done = prev_done
         #return state.replace(pipeline_state=pipeline_state, done=done, info=state.info, reward=reward)
 
@@ -232,6 +232,14 @@ class EcorobotEnv(PipelineEnv):
         return state.replace(
             pipeline_state=pipeline_state, obs=obs, reward=reward, done=done
         )
+
+    def show_rollout(self, states, saving_dir, filename):
+        output = html.render(self.sys, states)
+        if not os.path.exists(saving_dir):
+            os.makedirs(saving_dir)
+
+        with open(saving_dir + "/" + filename + ".html", "w") as f:
+            f.write(output)
 
 
 
