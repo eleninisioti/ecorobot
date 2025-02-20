@@ -68,8 +68,8 @@ class Locomotion(EcorobotEnv):
         pipeline_state = state.pipeline_state
 
         obs = self._get_obs(pipeline_state)
-        return self.robot.env.step(state, action)
-
+        state =   self.robot.env.step(state, action)
+        return state.replace(done=state.done.astype(jnp.bool_))
         #return state.replace(obs=obs, done=state.done.astype(jnp.bool_))
 
     def _get_obs(self, pipeline_state: State) -> jnp.ndarray:
