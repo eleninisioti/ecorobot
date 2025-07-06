@@ -17,13 +17,17 @@ from jax import numpy as jp
 import mujoco
 from brax.io import html
 import numpy as onp
+
+
 class EcorobotEnv(PipelineEnv):
     def __init__(self, project_dir, episode_length, backend="mjx", **kwargs):
+        
+        if not os.path.exists(project_dir):
+            os.makedirs(project_dir)
 
         self.episode_length = episode_length
         self.modules = []
-        if not os.path.exists(project_dir):
-            os.makedirs(project_dir)
+
         self.world_file = project_dir + "/mujoco.xml"
         self.base_env_kwargs = kwargs
         self.sensors = []
@@ -31,9 +35,6 @@ class EcorobotEnv(PipelineEnv):
     @property
     def action_size(self) -> int:
         return self.robot.action_size
-
-    def update_env_params(self, env_params):
-        return env_params
 
     def modify_sys(self, new_body):
         worldbody = self.element_tree.find(".//worldbody")
@@ -128,7 +129,7 @@ class EcorobotEnv(PipelineEnv):
 
         super().__init__(sys=sys,  **kwargs)
 
-    def reset(self, rng, **kw_args) -> State:
+    def reset(self, rng) -> State:
 
         # reset robot
         robot_key, module_key = jax.random.split(rng)
@@ -172,17 +173,11 @@ class EcorobotEnv(PipelineEnv):
     def step(self, state, action):
         pipeline_state0 = state.pipeline_state
         pipeline_state = self.pipeline_step(state.pipeline_state, action)
-        #pipeline_state = self.robot.env.pipeline_step(state.pipeline_state, action)
-        #state = self.robot.env.step(state, action)
-        #pipeline_state =state.pipeline_state
         metrics, reward =self.robot.get_metrics(pipeline_state0, pipeline_state, action)
-        state.info["current_step"] = state.info["current_step"] +1
-        #obs = self._get_obs(pipeline_state)
+        #state.info["current_step"] = state.info["current_step"] +1
 
         done =  self.robot.get_done(pipeline_state)
-        done = jnp.where(jnp.greater(state.info["current_step"], self.episode_length), 1.0, done )
-        #done = prev_done
-        #return state.replace(pipeline_state=pipeline_state, done=done, info=state.info, reward=reward)
+        #done = jnp.where(jnp.greater(state.info["current_step"], self.episode_length), 1.0, done )
 
         return state.replace(
             pipeline_state=pipeline_state, reward=reward, done=done
@@ -194,51 +189,13 @@ class EcorobotEnv(PipelineEnv):
     def get_action_size(self, task):
         return super().action_size
 
-    def step_other(self, state, action):
-        pipeline_state0 = state.pipeline_state
-        pipeline_state = self.pipeline_step(state.pipeline_state, action)
-        #pipeline_state = self.robot.env.pipeline_step(state.pipeline_state, action)
-        #state = self.robot.env.step(state, action)
-        #pipeline_state =state.pipeline_state
-        velocity = (pipeline_state.x.pos[0] - pipeline_state0.x.pos[0]) / self.dt
-        forward_reward = velocity[0]
 
-        min_z, max_z = self.robot.env._healthy_z_range
-        is_healthy = jp.where(pipeline_state.x.pos[0, 2] < min_z, 0.0, 1.0)
-        is_healthy = jp.where(pipeline_state.x.pos[0, 2] > max_z, 0.0, is_healthy)
-        if self.robot.env._terminate_when_unhealthy:
-            healthy_reward = self.robot.env._healthy_reward
-        else:
-            healthy_reward = self.robot.env._healthy_reward * is_healthy
-        ctrl_cost = self.robot.env._ctrl_cost_weight * jp.sum(jp.square(action))
-        contact_cost = 0.0
-
-        obs = self._get_obs(pipeline_state)
-
-        reward = forward_reward + healthy_reward - ctrl_cost - contact_cost
-        done = 1.0 - is_healthy if self.robot.env._terminate_when_unhealthy else 0.0
-        state.metrics.update(
-            reward_forward=forward_reward,
-            reward_survive=healthy_reward,
-            reward_ctrl=-ctrl_cost,
-            reward_contact=-contact_cost,
-            x_position=pipeline_state.x.pos[0, 0],
-            y_position=pipeline_state.x.pos[0, 1],
-            distance_from_origin=math.safe_norm(pipeline_state.x.pos[0]),
-            x_velocity=velocity[0],
-            y_velocity=velocity[1],
-            forward_reward=forward_reward,
-        )
-        return state.replace(
-            pipeline_state=pipeline_state, obs=obs, reward=reward, done=done
-        )
-
-    def show_rollout(self, states, saving_dir, filename):
+    def show_rollout(self, states, filename, save_dir):
         output = html.render(self.sys, states)
-        if not os.path.exists(saving_dir):
-            os.makedirs(saving_dir)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
 
-        with open(saving_dir + "/" + filename + ".html", "w") as f:
+        with open(save_dir + "/" + filename + ".html", "w") as f:
             f.write(output)
 
 

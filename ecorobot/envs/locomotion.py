@@ -12,7 +12,7 @@ from brax.envs.base import PipelineEnv, State
 
 class Locomotion(EcorobotEnv):
     def __init__(self,  robot_type, backend="mjx", only_forward=False,project_dir="temp", **kwargs):
-        self.episode_length = 300
+        self.episode_length = 1000
         self.num_tasks = 1
         self.current_task = 0
 
@@ -32,12 +32,7 @@ class Locomotion(EcorobotEnv):
 
         self.init_sys()
 
-
-    def get_obs_size(self, task):
-        return 26
-
-    def get_action_size(self, task):
-        8
+        
     def reset(self, key, env_params=None):
 
         new_state = super().reset(key)
@@ -69,9 +64,9 @@ class Locomotion(EcorobotEnv):
 
         obs = self._get_obs(pipeline_state)
 
-        state = self.robot.env.step(state, action)
-        return state.replace(done=state.done.astype(jnp.bool_))
-        #return state.replace(obs=obs, done=state.done.astype(jnp.bool_))
+        #state = self.robot.env.step(state, action)
+        #return state
+        return state.replace(obs=obs, done=state.done.astype(jnp.bool_))
 
     def _get_obs(self, pipeline_state: State) -> jnp.ndarray:
         """ Observe robot body position and velocities, as well as food location.
