@@ -18,9 +18,14 @@ from brax.envs.base import Env
 import functools
 from typing import Optional, Type
 from ecorobot.envs import locomotion
-
+from ecorobot.envs import locomotion_with_obstacles
+from ecorobot.envs import deceptive_maze_easy
+from ecorobot.envs import maze_with_stepping_stones
 _envs = {
          "locomotion": locomotion.Locomotion,
+         "locomotion_with_obstacles": locomotion_with_obstacles.LocomotionWithObstacles,
+         "deceptive_maze_easy": deceptive_maze_easy.DeceptiveMazeEasy,
+         "maze_with_stepping_stones": maze_with_stepping_stones.SteppingStoneMaze,
          }
 
 

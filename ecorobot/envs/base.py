@@ -190,7 +190,7 @@ class EcorobotEnv(PipelineEnv):
         return super().action_size
 
 
-    def show_rollout(self, states, filename, save_dir):
+    def show_rollout(self, states, save_dir, filename):
         output = html.render(self.sys, states)
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
